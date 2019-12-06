@@ -12,9 +12,8 @@ def snd(p):
     return p[1]
 
 
-def key_input():
-    raw = input('Input key: ').split()
-    return tuple(map(int, raw))
+def str_to_key(s):
+    return tuple(map(int, s.split()))
 
 
 def encrypt(message, key):
@@ -59,14 +58,14 @@ def main(argv):
             message = arg.split('=')[1]
 
         if arg.startswith('key='):
-            raw = arg.split('=')[1].replace(',',' ').split()
-            key = tuple(map(int, raw))
+            raw = arg.split('=')[1]
+            key = str_to_key(raw.replace(',',' '))
 
         if arg == 'd':
             only_decrypt = True
 
     if key == ():
-        key = key_input()
+        key = str_to_key(input('Input key: '))
     
     if only_decrypt:
         print('key:', key)
