@@ -4,16 +4,16 @@ import sys
 import math
 
 
+def str_to_key(s):
+    return tuple(map(int, s.split()))
+
+
 def fst(p):
     return p[0]
 
 
 def snd(p):
     return p[1]
-
-
-def str_to_key(s):
-    return tuple(map(int, s.split()))
 
 
 def encrypt(message, key):
@@ -25,18 +25,24 @@ def encrypt(message, key):
     return ''.join(map(snd, sorted(zip(key, table), key=fst)))
 
 
+def positions_from_key(key):
+    return list(map(fst, sorted(enumerate(key), key=snd)))
+
+
+def split_at(s, n):
+    return s[:n], s[n:]
+
+
 def decrypt(message, key):
     message_len = len(message)
     cols = len(key)
     rows = message_len // cols
-    rem = message_len % cols
     table = ['' for i in range(cols)]
-    positions = list(map(fst, sorted(enumerate(key), key=snd)))
+    positions = positions_from_key(key)
     
     for i in range(cols):
-        d = rows + int(i < rem)
-        table[positions[i]] = message[:d]
-        message = message[d:]
+        d = rows + int(i < message_len % cols)
+        table[positions[i]], message = split_at(message, d)
 
     result = ''
     for _ in range(math.ceil(message_len / cols)):
@@ -64,15 +70,19 @@ def main(argv):
         if arg == 'd':
             only_decrypt = True
 
-    if key == ():
+    if not key:
         key = str_to_key(input('Input key: '))
+
+    if not message:
+        message = input('Input message: ')
+
+    print('key:', key)
+    print('message:', message)
     
     if only_decrypt:
-        print('key:', key)
         print('decrypted:', decrypt(message, key))
     else:
         en = encrypt(message, key)
-        print('key:', key)
         print('encrypted:', en)
         print('decrypted:', decrypt(en, key))
 
