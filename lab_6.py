@@ -59,7 +59,7 @@ def main(argv):
             message = arg.split('=')[1]
 
         if arg.startswith('key='):
-            raw = arg.split('=')[1].split(',')
+            raw = arg.split('=')[1].replace(',',' ').split()
             key = tuple(map(int, raw))
 
         if arg == 'd':
