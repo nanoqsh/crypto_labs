@@ -43,13 +43,9 @@ def ls1(bits):
     return b2, b3, b4, b5, b1, b7, b8, b9, b10, b6
 
 
-def ls2(bits):
-    return ls1(ls1(bits))
-
-
 def key_pair(bits):
     key = ls1(p10(bits))
-    return p8(key), p8(ls2(key))
+    return p8(key), p8(ls1(key))
 
 
 def ip(bits):
@@ -178,7 +174,7 @@ def main(argv):
         key = str_to_bits(input('Enter a key: '), 10)
 
     if not message:
-        message = str_to_bits(input('Enter a message'))
+        message = str_to_bits(input('Enter a message: '))
     
     print_bits(key, '      key: ')
     print_bits(message, '  message: ')
