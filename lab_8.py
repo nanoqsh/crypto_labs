@@ -231,14 +231,11 @@ def debug_round(i, l, r, k):
 
 def des(block_bits64, key_bits64, encrypt=True, debug=False):
     aip = ip(block_bits64)
-
-    if debug:
-        print_hex(aip, 'ip: ')
-
     l, r = split_bits(aip, 32)
     keys = gen_keys(key_bits64)
 
     if debug:
+        print_hex(aip, 'ip: ')
         print_hex(l, 'splitting l: ')
         print_hex(r, 'splitting r: ')
     
