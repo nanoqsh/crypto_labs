@@ -32,6 +32,10 @@ def str_to_bits(s, n=64):
     return tuple(map(lambda c: c == '1', s))
 
 
+def hex_to_bits(hex_str, l):
+    return n_to_bits(int(hex_str, 16), l)
+
+
 def bytearray_to_bits(arr):
     res = ()
     for byte in arr:
@@ -107,7 +111,7 @@ def si(bits6, i):
 
 def ip(bits64):
     t = [
-        58, 50, 42, 34, 26, 18, 10, 2, 60, 52, 44, 36, 28,	20,	12,	4,
+        58, 50, 42, 34, 26, 18, 10, 2, 60, 52, 44, 36, 28, 20, 12, 4,
         62, 54, 46, 38, 30, 22, 14, 6, 64, 56, 48, 40, 32, 24, 16, 8,
         57, 49, 41, 33, 25, 17, 9, 1, 59, 51, 43, 35, 27, 19, 11, 3,
         61, 53, 45, 37, 29, 21, 13, 5, 63, 55, 47, 39, 31, 23, 15, 7,
@@ -169,19 +173,6 @@ def ls(bits):
     return (*bn, b1)
 
 
-def expand_to_8bit(bits7):
-    return (0, *bits7) if sum(bits7) % 2 == 0 else (1, *bits7)
-
-
-def expand_to_64bit(bits56):
-    n = 7
-    res = ()
-    for t in tuple(expand_to_8bit(bits56[i:i + n]) for i in range(0, 56, n)):
-        res += t
-
-    return res
-
-
 def pc1(bits64):
     t = [
         57, 49, 41, 33, 25, 17, 9, 1, 58, 50, 42, 34, 26, 18,
@@ -214,8 +205,8 @@ def split_bits(bits, n):
     return bits[:n], bits[n:]
 
 
-def gen_keys(bits56):
-    c, d = split_bits(pc1(expand_to_64bit(bits56)), 28)
+def gen_keys(bits64):
+    c, d = split_bits(pc1(bits64), 28)
     keys = []
 
     for i in range(16):
@@ -226,28 +217,50 @@ def gen_keys(bits56):
     return keys
 
 
-def des(block_bits64, key_bits56, encrypt=True):
-    l, r = split_bits(ip(block_bits64), 32)
-    keys = gen_keys(key_bits56)
+def debug_round(i, l, r, k):
+    print('round ', i, ': ', sep='')
+    print_hex(l, '    l: ')
+    print_hex(r, '    r: ')
+    print_hex(k, '    k: ')
+
+
+def des(block_bits64, key_bits64, encrypt=True, debug=False):
+    aip = ip(block_bits64)
+
+    if debug:
+        print_hex(aip, 'ip: ')
+
+    l, r = split_bits(aip, 32)
+    keys = gen_keys(key_bits64)
+
+    if debug:
+        print_hex(l, 'splitting l: ')
+        print_hex(r, 'splitting r: ')
     
     for i in range(16):
         k = keys[i] if encrypt else keys[15 - i]
         l, r = r, xor(l, f(r, k))
+        if debug:
+            debug_round(i, l, r, k)
     
-    return ip_inverted((*l, *r))
+    return ip_inverted((*r, *l))
 
 
 def main(argv):
     encrypt = True
+    debug = False
     block = ()
     key = ()
 
     for arg in argv:
         if arg.startswith('key='):
-            key = str_to_bits(arg.split('=')[1], 56)
+            key = str_to_bits(arg.split('=')[1], 64)
 
         if arg.startswith('str_key='):
             key = bytearray_to_bits(arg.split('=')[1].encode('utf-8'))
+        
+        if arg.startswith('hex_key='):
+            key = hex_to_bits(arg.split('=')[1], 64)
 
         if arg.startswith('block='):
             block = str_to_bits(arg.split('=')[1], 64)
@@ -255,13 +268,19 @@ def main(argv):
         if arg.startswith('str_block='):
             block = bytearray_to_bits(arg.split('=')[1].encode('utf-8'))
 
+        if arg.startswith('hex_block='):
+            block = hex_to_bits(arg.split('=')[1], 64)
+
         if arg == 'd':
             encrypt = False
+
+        if arg == 'debug':
+            debug = True
     
     if key and block:
         print_hex(key, 'key: ')
         print_hex(block, 'block: ')
-        print_hex(des(block, key, encrypt), 'encrypted: ' if encrypt else 'decrypted: ')
+        print_hex(des(block, key, encrypt, debug), 'encrypted: ' if encrypt else 'decrypted: ')
 
 
 main(sys.argv)
