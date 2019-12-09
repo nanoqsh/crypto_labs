@@ -37,8 +37,8 @@ def str_to_bits(s, n=64):
     return tuple(map(lambda c: c == '1', s))
 
 
-def hex_to_bits(hex_str, l):
-    return n_to_bits(int(hex_str.replace(' ', ''), 16), l)
+def hex_to_bits(hex_str, n=64):
+    return n_to_bits(int(hex_str.replace(' ', ''), 16), n)
 
 
 def bytearray_to_bits(arr):
@@ -256,22 +256,22 @@ def main(argv):
 
     for arg in argv:
         if arg.startswith('key='):
-            key = str_to_bits(arg.split('=')[1], 64)
+            key = str_to_bits(arg.split('=')[1])
 
         if arg.startswith('str_key='):
             key = bytearray_to_bits(arg.split('=')[1].encode('utf-8'))
         
         if arg.startswith('hex_key='):
-            key = hex_to_bits(arg.split('=')[1], 64)
+            key = hex_to_bits(arg.split('=')[1])
 
         if arg.startswith('block='):
-            block = str_to_bits(arg.split('=')[1], 64)
+            block = str_to_bits(arg.split('=')[1])
 
         if arg.startswith('str_block='):
             block = bytearray_to_bits(arg.split('=')[1].encode('utf-8'))
 
         if arg.startswith('hex_block='):
-            block = hex_to_bits(arg.split('=')[1], 64)
+            block = hex_to_bits(arg.split('=')[1])
 
         if arg == 'd':
             encrypt = False
@@ -280,10 +280,10 @@ def main(argv):
             debug = True
     
     if not key:
-        key = hex_to_bits(input('Enter a key (hex): '), 64)
+        key = hex_to_bits(input('Enter a key (hex): '))
 
     if not block:
-        block = hex_to_bits(input('Enter a block (hex): '), 64)
+        block = hex_to_bits(input('Enter a block (hex): '))
     
     print_hex(key, 'key: ')
     print_hex(block, 'block: ')
