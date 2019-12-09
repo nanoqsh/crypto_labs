@@ -15,7 +15,12 @@ def print_bits(bits, intro=''):
 def print_hex(bits, intro=''):
     print(intro, end='')
     for n in range(0, len(bits), 8):
-        print(hex(bits_to_n(bits[n:n+8]))[2:], end=' ')
+        s = hex(bits_to_n(bits[n:n+8]))[2:]
+
+        if len(s) == 1:
+            print('0', end='')
+            
+        print(s, end=' ')
     print()
 
     return bits
@@ -33,7 +38,7 @@ def str_to_bits(s, n=64):
 
 
 def hex_to_bits(hex_str, l):
-    return n_to_bits(int(hex_str, 16), l)
+    return n_to_bits(int(hex_str.replace(' ', ''), 16), l)
 
 
 def bytearray_to_bits(arr):
@@ -277,10 +282,15 @@ def main(argv):
         if arg == 'debug':
             debug = True
     
-    if key and block:
-        print_hex(key, 'key: ')
-        print_hex(block, 'block: ')
-        print_hex(des(block, key, encrypt, debug), 'encrypted: ' if encrypt else 'decrypted: ')
+    if not key:
+        key = hex_to_bits(input('Enter a key (hex): '), 64)
+
+    if not block:
+        block = hex_to_bits(input('Enter a block (hex): '), 64)
+    
+    print_hex(key, 'key: ')
+    print_hex(block, 'block: ')
+    print_hex(des(block, key, encrypt, debug), 'encrypted: ' if encrypt else 'decrypted: ')
 
 
 main(sys.argv)
