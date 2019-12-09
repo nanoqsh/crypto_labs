@@ -151,14 +151,17 @@ def xor(a, b):
     return tuple(map(lambda p: p[0] != p[1], zip(a, b)))
 
 
-def f(r_bits32, key_bits48):
-    bits48 = xor(e(r_bits32), key_bits48)
+def s(bits48):
     n = 6
     res = ()
     for bits4 in tuple(si(bits48[i:i + n], r) for r, i in enumerate(range(0, 48, n))):
         res += bits4
-    
-    return p(res)
+
+    return res
+
+
+def f(r_bits32, key_bits48):
+    return p(s(xor(e(r_bits32), key_bits48)))
 
 
 def ls(bits):
