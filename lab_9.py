@@ -167,13 +167,11 @@ def main(argv):
     if mode == ENCRYPT_MODE or mode == BOTH_MODE:
         e = select_e(p, q, d)
         pub_key = e, n
-        data = encrypt_file(source_filename, pub_key)
-        save_file(data, encrypted_filename)
+        save_file(encrypt_file(source_filename, pub_key), encrypted_filename)
 
     if mode == DECRYPT_MODE or mode == BOTH_MODE:
         priv_key = d, n
-        decrypted_data = decrypt_file(encrypted_filename, priv_key)
-        save_file(decrypted_data, decrypted_filename)
+        save_file(decrypt_file(encrypted_filename, priv_key), decrypted_filename)
 
 
 main(sys.argv)
