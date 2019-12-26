@@ -39,10 +39,11 @@ def decrypt(message, key):
     rows = message_len // cols
     table = ['' for i in range(cols)]
     positions = positions_from_key(key)
-    
+
     for i in range(cols):
-        d = rows + int(i < message_len % cols)
-        table[positions[i]], message = split_at(message, d)
+        pos = positions[i]
+        d = rows + int(pos < message_len % cols)
+        table[pos], message = split_at(message, d)
 
     result = ''
     for _ in range(math.ceil(message_len / cols)):
